@@ -1,6 +1,6 @@
 # hvim
 
-Personal Neovim wrapper.
+A personal Neovim wrapper built with Nix.
 
 This flake builds `hvim`, a wrapped `neovim-unwrapped` for my own Neovim profile.
 

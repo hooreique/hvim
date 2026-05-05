@@ -1,5 +1,5 @@
 {
-  description = "Personal Neovim wrapper: hvim";
+  description = "A personal Neovim wrapper built with Nix.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -34,7 +34,10 @@
       };
 
       hvim = pkgs.runCommand "hvim-${pkgs.lib.getVersion pkgs.neovim-unwrapped}" {
-        meta = wrappedNeovim.meta // { mainProgram = "hvim"; };
+        meta = wrappedNeovim.meta // {
+          description = "A personal Neovim wrapper built with Nix.";
+          mainProgram = "hvim";
+        };
         nativeBuildInputs = [ pkgs.makeWrapper ];
       } ''
         mkdir -p "$out/bin"
