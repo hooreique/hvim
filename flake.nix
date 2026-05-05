@@ -43,6 +43,7 @@
         meta = wrappedNeovim.meta // {
           mainProgram = "hvim";
           description = "A personal Neovim wrapper built with Nix.";
+          homepage = "https://github.com/hooreique/hvim";
           license = pkgs.lib.unique ([ pkgs.lib.licenses.mit ] ++ (pkgs.lib.toList wrappedNeovim.meta.license));
         };
         nativeBuildInputs = [ pkgs.makeWrapper ];
@@ -77,14 +78,6 @@
     in {
       inherit hvim;
       default = hvim;
-    };
-
-    apps = {
-      hvim = {
-        type = "app";
-        program = "${inputs.self.packages.${system}.hvim}/bin/hvim";
-      };
-      default = inputs.self.apps.${system}.hvim;
     };
   });
 }
