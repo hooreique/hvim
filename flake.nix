@@ -31,7 +31,19 @@
         pkgs.nil
       ];
 
-      wrappedNeovim = pkgs.wrapNeovim pkgs.neovim-unwrapped {
+      patchedNeovim = pkgs.neovim-unwrapped.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace src/nvim/version.c \
+            --replace-fail '"│ ╲ ││",' '"h       i    ",' \
+            --replace-fail '"││╲╲││",' '"hhh v v i mmm",' \
+            --replace-fail '"││ ╲ │",' '"h h  v  i mmm",' \
+            --replace-fail 'N_(NVIM_VERSION_LONG),' '"hvim " NVIM_VERSION_MEDIUM,'
+          substituteInPlace src/nvim/version.c \
+            --replace-fail "      int attr = 0;" "      int attr = *p == 'h' ? string_attr : (*p == ' ' ? 0 : special_attr);"
+        '';
+      });
+
+      wrappedNeovim = pkgs.wrapNeovim patchedNeovim {
         extraName = "-hvim";
         wrapperArgs = [
           "--set"  "NVIM_APPNAME"  "hvim"
