@@ -16,7 +16,7 @@ It is a small wrapper for running a separate personal Neovim environment with a 
 nix run
 # or
 nix run .#hvim
-````
+```
 
 Build:
 
@@ -81,3 +81,9 @@ After building:
 ```
 
 This is mainly for reusing the generated LuaLS settings from editor config or for debugging.
+
+## License
+
+This repository is licensed under the MIT License. See [LICENSE](./LICENSE).
+
+`hvim` is only a wrapper, so Neovim and nixpkgs packages keep their upstream licenses. The package metadata reflects that.

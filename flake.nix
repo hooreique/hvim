@@ -10,9 +10,15 @@
     pkgs = inputs.nixpkgs.legacyPackages.${system};
   in {
     packages = let
+      luarcSchemaVersion = "v3.18.2";
+      luaLSVscodeLuaBaseUrl = "https://raw.githubusercontent.com/LuaLS/vscode-lua/refs/tags/${luarcSchemaVersion}";
       luarcSchema = pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/LuaLS/vscode-lua/refs/tags/v3.18.2/setting/schema.json";
+        url = "${luaLSVscodeLuaBaseUrl}/setting/schema.json";
         sha256 = "sha256-9iIVguhV85jc7sESYwEnkxEH849HFEtv/SaXwLQBH4Q=";
+      };
+      luarcSchemaLicense = pkgs.fetchurl {
+        url = "${luaLSVscodeLuaBaseUrl}/LICENSE";
+        sha256 = "sha256-cHSCTv/fzh1DUBOflSpHBnFhB+ImldbVEyeCzeG40SY=";
       };
 
       runtimePrograms = [
@@ -35,13 +41,17 @@
 
       hvim = pkgs.runCommand "hvim-${pkgs.lib.getVersion pkgs.neovim-unwrapped}" {
         meta = wrappedNeovim.meta // {
-          description = "A personal Neovim wrapper built with Nix.";
           mainProgram = "hvim";
+          description = "A personal Neovim wrapper built with Nix.";
+          license = pkgs.lib.unique ([ pkgs.lib.licenses.mit ] ++ (pkgs.lib.toList wrappedNeovim.meta.license));
         };
         nativeBuildInputs = [ pkgs.makeWrapper ];
       } ''
         mkdir -p "$out/bin"
         mkdir -p "$out/share"
+        mkdir -p "$out/share/licenses/hvim"
+        cp "${./LICENSE}" "$out/share/licenses/hvim/LICENSE"
+        cp "${luarcSchemaLicense}" "$out/share/licenses/hvim/LuaLS-vscode-lua-LICENSE"
         cp "${luarcSchema}" "$out/share/luarc-schema.json"
         cat > "$out/share/luarc.hvim-config.json" <<EOF
         {
