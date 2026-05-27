@@ -73,8 +73,8 @@
         },
         "workspace": {
           "library": [
-            "${pkgs.neovim-unwrapped}/share/nvim/runtime/lua",
-            "${pkgs.neovim-unwrapped}/share/nvim/runtime/lua/vim/lsp"
+            "${patchedNeovim}/share/nvim/runtime/lua",
+            "${patchedNeovim}/share/nvim/runtime/lua/vim/lsp"
           ]
         }
       }
