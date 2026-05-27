@@ -21,13 +21,13 @@
     };
 
     runtimePrograms = [
-      pkgs.fd                   pkgs.nodejs_24
-      pkgs.gcc                  pkgs.ripgrep
-      pkgs.gitMinimal           pkgs.tree-sitter
-      pkgs.gnumake              pkgs.vscode-langservers-extracted
-      pkgs.lemminx              pkgs.vscode-js-debug
-      pkgs.lua-language-server  pkgs.yaml-language-server
-      pkgs.nil
+      pkgs.fd      pkgs.ripgrep
+      pkgs.gcc     pkgs.gitMinimal
+      pkgs.nil     pkgs.tree-sitter
+      pkgs.curl    pkgs.vscode-js-debug
+      pkgs.gnutar  pkgs.lua-language-server
+      pkgs.gnumake pkgs.yaml-language-server
+      pkgs.lemminx pkgs.vscode-langservers-extracted
     ];
 
     patchedNeovim = pkgs.neovim-unwrapped.overrideAttrs (old: {
