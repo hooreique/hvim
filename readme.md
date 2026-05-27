@@ -66,19 +66,19 @@ lemminx
 vscode-js-debug
 ```
 
-Add tools to `runtimePrograms` in `flake.nix` when they should be visible from inside `hvim`.
+Add tools to `runtimePrograms` in `package.nix` when they should be visible from inside `hvim`.
 
 ## hvim-luarc
 
-The package also provides:
+The flake exposes `hvim-luarc` as an app:
 
 ```sh
-hvim-luarc
+nix run .#hvim-luarc
 ```
 
 It prints the generated LuaLS config for this wrapper.
 
-After building:
+The built `hvim` package also contains the helper executable:
 
 ```sh
 ./result/bin/hvim-luarc

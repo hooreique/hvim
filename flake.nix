@@ -3,91 +3,17 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system: let
-    pkgs = inputs.nixpkgs.legacyPackages.${system};
-
-    luarcSchemaVersion = "v3.18.2";
-    luaLSVscodeLuaBaseUrl = "https://raw.githubusercontent.com/LuaLS/vscode-lua/refs/tags/${luarcSchemaVersion}";
-    luarcSchema = pkgs.fetchurl {
-      url = "${luaLSVscodeLuaBaseUrl}/setting/schema.json";
-      sha256 = "sha256-9iIVguhV85jc7sESYwEnkxEH849HFEtv/SaXwLQBH4Q=";
+  outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+    systems = [ "aarch64-darwin"  "aarch64-linux"  "x86_64-linux" ];
+    perSystem = { pkgs, ... }: let
+      hvim = pkgs.callPackage ./package.nix { };
+    in {
+      packages.hvim = hvim;
+      packages.default = hvim;
+      apps.hvim-luarc.program = "${hvim}/bin/hvim-luarc";
     };
-    luarcSchemaLicense = pkgs.fetchurl {
-      url = "${luaLSVscodeLuaBaseUrl}/LICENSE";
-      sha256 = "sha256-cHSCTv/fzh1DUBOflSpHBnFhB+ImldbVEyeCzeG40SY=";
-    };
-
-    runtimePrograms = [
-      pkgs.fd      pkgs.ripgrep
-      pkgs.gcc     pkgs.gitMinimal
-      pkgs.nil     pkgs.tree-sitter
-      pkgs.curl    pkgs.vscode-js-debug
-      pkgs.gnutar  pkgs.lua-language-server
-      pkgs.gnumake pkgs.yaml-language-server
-      pkgs.lemminx pkgs.vscode-langservers-extracted
-    ];
-
-    patchedNeovim = pkgs.neovim-unwrapped.overrideAttrs (old: {
-      postPatch = (old.postPatch or "") + ''
-        substituteInPlace src/nvim/version.c \
-          --replace-fail '"│ ╲ ││",' '"h       i    ",' \
-          --replace-fail '"││╲╲││",' '"hhh v v i mmm",' \
-          --replace-fail '"││ ╲ │",' '"h h  v  i mmm",' \
-          --replace-fail 'N_(NVIM_VERSION_LONG),' '"hvim " NVIM_VERSION_MEDIUM,'
-        substituteInPlace src/nvim/version.c \
-          --replace-fail "      int attr = 0;" "      int attr = *p == 'h' ? string_attr : (*p == ' ' ? 0 : special_attr);"
-      '';
-    });
-
-    wrappedNeovim = pkgs.wrapNeovim patchedNeovim {
-      extraName = "-hvim";
-      wrapperArgs = [
-        "--set"  "NVIM_APPNAME"  "hvim"
-        "--suffix"  "PATH"  ":"  (pkgs.lib.makeBinPath runtimePrograms)
-      ];
-    };
-
-    hvim = pkgs.runCommand "hvim-${pkgs.lib.getVersion pkgs.neovim-unwrapped}" {
-      meta = wrappedNeovim.meta // {
-        mainProgram = "hvim";
-        description = "A personal Neovim wrapper built with Nix.";
-        homepage = "https://github.com/hooreique/hvim";
-        license = pkgs.lib.unique ([ pkgs.lib.licenses.mit ] ++ (pkgs.lib.toList wrappedNeovim.meta.license));
-      };
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-    } ''
-      mkdir -p "$out/bin"
-      mkdir -p "$out/share"
-      mkdir -p "$out/share/licenses/hvim"
-      cp "${./LICENSE}" "$out/share/licenses/hvim/LICENSE"
-      cp "${luarcSchemaLicense}" "$out/share/licenses/hvim/LuaLS-vscode-lua-LICENSE"
-      cp "${luarcSchema}" "$out/share/luarc-schema.json"
-      cat > "$out/share/luarc.hvim-config.json" <<EOF
-      {
-        "\''$schema": "file://$out/share/luarc-schema.json",
-        "runtime": {
-          "version": "LuaJIT"
-        },
-        "workspace": {
-          "library": [
-            "${patchedNeovim}/share/nvim/runtime/lua",
-            "${patchedNeovim}/share/nvim/runtime/lua/vim/lsp"
-          ]
-        }
-      }
-      EOF
-      makeWrapper "${wrappedNeovim}/bin/nvim" "$out/bin/hvim" --prefix PATH : "$out/bin"
-      cat > "$out/bin/hvim-luarc" <<EOF
-      #!${pkgs.runtimeShell}
-      exec ${pkgs.coreutils}/bin/cat "$out/share/luarc.hvim-config.json"
-      EOF
-      chmod +x "$out/bin/hvim-luarc"
-    '';
-  in {
-    packages.hvim = hvim;
-    packages.default = hvim;
-  });
+  };
 }
