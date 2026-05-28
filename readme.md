@@ -4,90 +4,11 @@ hhh v v i mmm
 h h  v  i mmm
 ```
 
-A personal Neovim wrapper built with Nix.
+# hvim
 
-This flake builds `hvim`, a wrapped `neovim-unwrapped` for my own Neovim profile.
+Personal Nix wrapper for running my Neovim as `NVIM_APPNAME=hvim`.
 
-## Purpose
-
-`hvim` is not a general Neovim distribution.
-
-It is a small wrapper for running a separate personal Neovim environment with a pinned Nix toolchain.
-
-## Usage
-
-```sh
-nix run
-# or
-nix run .#hvim
-```
-
-Build:
-
-```sh
-nix build
-./result/bin/hvim
-```
-
-## NVIM_APPNAME
-
-The wrapper sets:
-
-```sh
-NVIM_APPNAME=hvim
-```
-
-So Neovim uses `hvim`-specific paths instead of the default `nvim` ones:
-
-```text
-~/.config/hvim
-~/.local/share/hvim
-~/.local/state/hvim
-~/.cache/hvim
-```
-
-This keeps `hvim` isolated from normal `nvim`.
-
-## PATH
-
-The wrapper appends runtime tools to `PATH` so they are available inside Neovim.
-
-Current examples include language servers, debuggers, and common editor tools such as:
-
-```text
-ripgrep
-fd
-tree-sitter
-lua-language-server
-nil
-vscode-langservers-extracted
-yaml-language-server
-lemminx
-vscode-js-debug
-```
-
-Add tools to `runtimePrograms` in `package.nix` when they should be visible from inside `hvim`.
-
-## hvim-luarc
-
-The flake exposes `hvim-luarc` as an app:
-
-```sh
-nix run .#hvim-luarc
-```
-
-It prints the generated LuaLS config for this wrapper.
-
-The built `hvim` package also contains the helper executable:
-
-```sh
-./result/bin/hvim-luarc
-```
-
-This is mainly for reusing the generated LuaLS settings from editor config or for debugging.
-
-## License
-
-This repository is licensed under the MIT License. See [LICENSE](./LICENSE).
-
-`hvim` is only a wrapper, so Neovim and nixpkgs packages keep their upstream licenses. The package metadata reflects that.
+- Default package/app is `hvim`; LuaLS config helper is `nix run .#hvim-luarc`.
+- Config/data/state/cache use `hvim`, not `nvim`.
+- Tools visible inside Neovim live in `runtimePrograms` in `package.nix`.
+- `neovim-unwrapped` is only patched for the start screen banner and version string.
