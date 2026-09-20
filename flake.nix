@@ -17,6 +17,10 @@
         );
     in
     {
+      overlays.default = final: prev: {
+        hvim = final.callPackage ./package.nix { };
+      };
+
       packages = forAllSys (hvim: {
         hvim = hvim;
         default = hvim;
